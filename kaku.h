@@ -1,4 +1,3 @@
-
 #include <NewPing.h>
 #define MAX_distanceANCE 200
 #define MAX_DISTANCE_FROM_OBSTACLE_IN_CMS 20
@@ -15,8 +14,14 @@ NewPing sonar(SonarTrig, SonarEcho, MAX_distanceANCE);
 #define REVERSE LOW
 #define STOP LOW
 #define sonarSensor sonar.ping_cm()
+const int dist = 0;
+int leftdist = 0;
+int rightdist = 0;
+int object = 10;  
 void setupRobot(void)
 {
+  pinMode(SonarTrig,OUTPUT);
+  pinMode(SonarEcho,INPUT);
   pinMode(SonarVcc, OUTPUT);
   pinMode(SonarGnd, OUTPUT);
   digitalWrite(SonarVcc, HIGH);
@@ -31,8 +36,6 @@ long duration, inches, cm;
 void setup()
 {
 setupRobot();
-pinMode(SonarTrig,OUTPUT);
-pinMode(SonarEcho,INPUT);
 }
 int count = 0;
 void loop()
@@ -48,26 +51,13 @@ duration = pulseIn(SonarEcho, HIGH);
 unsigned int distanceInCms = sonar.ping() / US_ROUNDTRIP_CM; // Send ping, get ping time in microseconds (uS) and convert it to centimeters (cm)
 Serial.println("Distance: " + String(distanceInCms) + "cm");
   if(distanceInCms != NO_ECHO && distanceInCms < MAX_DISTANCE_FROM_OBSTACLE_IN_CMS) 
-  {
-    goBackward(1000);
-    count++;
-    if(count>30)
-    {
-      if(rand()%2==0)
-        turnLeft(1000);
-      else
-        turnRight(2000);
-       count = 0;
-    }
-    else
-    {
-  stoP(3000);
-  }
-  }
-  else
-  {
-     goForward(4000);
-  }
+ {               
+   findroute(100);
+ }
+ else
+ {
+ goForward(100);
+}
 }
 int distance = 0;
 void goForward(int d)
@@ -81,7 +71,7 @@ void goForward(int d)
 void turnLeft(int d)
 {
     digitalWrite(leftMotorSpeed, HIGH);
-    digitalWrite(leftMotorDirection, REVERSE);
+    digitalWrite(leftMotorDirection,REVERSE);
     digitalWrite(rightMotorSpeed, HIGH);
     digitalWrite(rightMotorDirection, FORWARD);  
     delay(d);
@@ -96,15 +86,31 @@ void goBackward(int d)
 }
 void turnRight(int d)
 {
-    digitalWrite(leftMotorSpeed, HIGH);
+    analogWrite(leftMotorSpeed, 155);
     digitalWrite(leftMotorDirection, FORWARD);
     digitalWrite(rightMotorSpeed, HIGH);
     digitalWrite(rightMotorDirection, REVERSE);  
     delay(d);
+    halt(100);
 }
-void stoP(int d)
+void halt(int d)
 {
     digitalWrite(leftMotorSpeed, LOW);
     digitalWrite(rightMotorSpeed, LOW);
     delay(d);
 }
+void findroute(int d)
+{
+ halt(100);                                             // stop                      //go to subroutine lookright                            
+ if ( leftdist < rightdist )
+ {
+   turnLeft(1000);
+ }
+else
+{
+  turnRight (1000);
+}
+}
+
+
+
